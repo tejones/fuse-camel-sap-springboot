@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:camel="http://camel.apache.org/schema/spring"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="           http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd           http://camel.apache.org/schema/spring           http://camel.apache.org/schema/spring/camel-spring-2.0.0.xsd">
+    <!-- Here is an example route which builds a request to the GetList method 
+		of the FlightCustomer BAPI to retrieve the list of Flight Customers within 
+		an SAP System. The request is sent to SAP via a synchronous RFC endpoint 
+		to the BAPI method which also receives back a response containing the list 
+		of Flight Customers. -->
+    <camelContext id="camelContext-69bbdc43-4234-4bbe-9258-cb08a7e9d04c" xmlns="http://camel.apache.org/schema/spring">
+        <rest id="rest-d2d56a7e-88a2-44d2-bc42-8d61f5a0d3e0" path="/sap/">
+            <get id="get-6bd4f0ce-f607-4380-8eb4-3e4ad658e9ec" uri="/flights/">
+                <!-- 			    <from uri="timer://init?repeatCount=1" /> -->
+                <!-- 				<to uri="bean:request" /> -->
+                <!-- 			<log id="_logBody" loggingLevel="INFO" message="${body}" /> -->
+                <to uri="sap-srfc-destination:quickstartDest:BAPI_FLCUST_GETLIST"/>
+                <!-- 			<log id="_logReturnBody" loggingLevel="INFO" message="${body}" /> -->
+            </get>
+        </rest>
+        <route id="_sap_flight">
+            <from id="_from1" uri="timer://init?repeatCount=1"/>
+            <to id="_to1" uri="bean:request"/>
+            <log id="_log1" loggingLevel="INFO" message="${body}"/>
+            <to id="_to2" uri="sap-srfc-destination:quickstartDest:BAPI_FLCUST_GETLIST"/>
+            <log id="_log2" loggingLevel="INFO" message="${body}"/>
+        </route>
+    </camelContext>
+    <!-- Instantiates a processor bean which builds a request to the GetList 
+		method of the FlightCustomer BAPI and sets that request in the body of the 
+		exchange's message. -->
+    <bean class="org.redhat.CreateRequest" id="request"/>
+    <!-- Configures the Inbound and Outbound SAP Connections -->
+    <bean
+        class="org.fusesource.camel.component.sap.SapConnectionConfiguration" id="sap-configuration">
+        <property name="destinationDataStore">
+            <map>
+                <entry key="quickstartDest" value-ref="quickstartDestinationData"/>
+            </map>
+        </property>
+    </bean>
+    <!-- Configures an Outbound SAP Connection -->
+    <!-- *** Please enter the connection property values for your environment 
+		*** -->
+    <!-- <bean
+        class="org.fusesource.camel.component.sap.model.rfc.impl.DestinationDataImpl" id="quickstartDestinationData">
+        <property name="ashost" value="vhs4h1909rds.pro.coil"/>
+        <property name="sysnr" value="00"/>
+        <property name="client" value="100"/>
+        <property name="gwserv" value="3300"/>
+        <property name="user" value="proen"/>
+        <property name="passwd" value="R3dh4t1!"/>
+        <property name="lang" value="en"/>
+    </bean> -->
+    <!-- SAP Instance Configuration Configuration Parameters -->
+    <!-- *** Please enter the connection property values for your SAP Instance 
+		*** -->
+    <!-- <jco.client.ashost>52.44.248.23</jco.client.ashost> <jco.client.ashost>vhs4h1909rds.pro.coil</jco.client.ashost> 
+		<jco.client.sysnr>00</jco.client.sysnr> <jco.client.client>100</jco.client.client> 
+		<jco.client.gwhost>52.44.248.23</jco.client.gwhost> <jco.client.gwhost>vhs4h1909rds.pro.coil</jco.client.gwhost> 
+		<jco.client.gwserv>3300</jco.client.gwserv> <jco.client.user>proen</jco.client.user> 
+		<jco.client.passwd>R3dh4t1!</jco.client.passwd> <jco.client.lang>en</jco.client.lang> -->
+    <bean class="org.fusesource.camel.component.sap.model.rfc.impl.DestinationDataImpl" 
+		id="quickstartDestinationData"> <property name="ashost" value="s4hana-maki.maki.blue.osp.opentlc.com"/> 
+		<property name="sysnr" value="00"/> <property name="client" value="000"/> 
+		<property name="gwserv" value="3300"/> <property name="user" value="mak"/> 
+		<property name="passwd" value="R3dh4t123!"/> <property name="lang" value="en"/> 
+		</bean>
+</beans>
